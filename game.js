@@ -7,10 +7,10 @@ window.onload = function() {
   game.itemSpriteSheetWidth = 64;
   game.preload(["sprites.png", "items.png"]);
   game.items = [
-    { price: 5, description: "Arminha de dedo", id: 0, dano: 1 },
-    { price: 10, description: "Bolsa de colonoscopia", id: 1, dano: 2 },
-    { price: 20, description: "Kit Gay", id: 2, dano: 3 },
-    { price: 50, description: "Cocaina", id: 3, dano: 4 }
+    { price: 20, description: "pino de cocaina", id: 0},
+    { price: 50, description: "Arminha de dedo", id: 1, bonus: 1 },
+    { price: 120, description: "Uniforme do Brasil", id: 2, bonus: 3 },
+    { price: 300, description: "Kit Gay", id: 3, bonus: 1 }
   ];
   game.fps = 15;
   game.spriteWidth = 16;
@@ -33,7 +33,16 @@ window.onload = function() {
     map.collisionData = collisionData;
   };
 
-  
+  var setBonus = function() {
+    var bonus = 0;
+    for(i = 0; i < player.inventory.length; i++){
+      player.inventory[i] == 1? bonus+= game.items[1].bonus: null 
+      player.inventory[i] == 2? bonus+= game.items[2].bonus: null 
+      player.inventory[i] == 4? bonus+= game.items[3].bonus: null 
+    }
+    console.log(bonus)
+    return bonus;
+  }
 
   var setStage = function() {
     var stage = new Group();
@@ -60,7 +69,7 @@ window.onload = function() {
     player.characterClass = "Aviãozinho";
     player.exp = 0;
     player.level = 1;
-    player.gp = 100;
+    player.gp = 1000;
     player.levelStats = [
       {},
       { attack: 4 , maxHp: 30, maxMp: 5, expMax: 10 },
@@ -68,7 +77,7 @@ window.onload = function() {
       { attack: 7, maxHp: 50, maxMp: 6, expMax: 50 }
     ];
     player.attack = function() {
-      return player.levelStats[player.level].attack;
+      return player.levelStats[player.level].attack + setBonus();
     };
     player.magic = function(a){
       player.inventory 
@@ -334,7 +343,7 @@ window.onload = function() {
         " exp<br />" +
         "e " +
         player.currentEnemy.gp +
-        " papelotes!";
+        "reais!";
       player.statusLabel.height = 45;
       if (player.exp > player.levelStats[player.level].expMax) {
         player.level += 1;
@@ -364,14 +373,20 @@ window.onload = function() {
         battle.won();
       }
     };
-    battle.playerMagic = function() {
-      var currentEnemy = player.currentEnemy;
-      var playerHit = 30;
-      currentEnemy.hp = currentEnemy.hp - playerHit;
-      battle.menu.text = "Você causou " + playerHit + " de dano!";
-      if (currentEnemy.hp <= 0) {
-        battle.won();
-      }
+    battle.playerHeal = function() { 
+         
+        if(player.inventory.includes(0)){
+          player.hp += 10;
+          battle.menu.text = "Você recuperou 10 de vida!";
+          player.inventory.splice(0, 1)
+          return 
+        }else{
+          battle.menu.text = "Você nao possui cocaina";
+          return
+        }
+     
+      
+     
     };
     
     battle.enemyAttack = function() {
@@ -408,11 +423,11 @@ window.onload = function() {
         }
       },
       {
-        name: "Usar item",
+        name: "Curar",
         action: function() {
-          // battle.menu.text = "Voce não possui nenhuma bala!";
+          console.log(player.inventory)
           battle.wait = true;
-          battle.playerMagic();
+          battle.playerHeal();
           setTimeout(function() {
             if (!battle.over) {
               battle.enemyAttack();
@@ -434,8 +449,9 @@ window.onload = function() {
       {
         name: "Fugir",
         action: function() {
+          
           game.pause();
-          player.statusLabel.text = "Você arregou!";
+          player.statusLabel.text = "Você fugiu!";
           player.statusLabel.height = 12;
           battle.menu.text = "";
           game.popScene();
@@ -518,7 +534,7 @@ window.onload = function() {
     var shop = new Group();
     shop.itemSelected = 0;
     shop.shoppingFunds = function() {
-      return "Papelotes: " + player.gp;
+      return "Dinheiro: " + player.gp;
     };
     shop.drawManeki = function() {
       var image = new Surface(game.spriteSheetWidth, game.spriteSheetHeight);
@@ -586,7 +602,9 @@ window.onload = function() {
     shop.on("enterframe", function() {
       setTimeout(function() {
         if (game.input.a) {
+          
           shop.attemptToBuy();
+        
         } else if (game.input.down) {
           shop.message.text = shop.farewell;
           setTimeout(function() {
@@ -608,6 +626,7 @@ window.onload = function() {
       shoppingFunds.text = shop.shoppingFunds();
     });
     shop.attemptToBuy = function() {
+      
       var itemPrice = game.items[this.itemSelected].price;
       if (player.gp < itemPrice) {
         this.message.text = this.apology;
@@ -617,7 +636,6 @@ window.onload = function() {
         player.inventory.push(game.items[this.itemSelected].id);
         this.message.text = this.sale;
       }
-      console.log(player.inventory)
     };
 
     shop.greeting = "Eai meu patrão, qual vai ser?";
