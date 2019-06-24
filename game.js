@@ -7,7 +7,7 @@ window.onload = function() {
   game.itemSpriteSheetWidth = 64;
   game.preload(["sprites.png", "items.png"]);
   game.items = [
-    { price: 20, description: "pino de cocaina", id: 0},
+    { price: 20, description: "pino de cocaina", id: 0 },
     { price: 50, description: "Arminha de dedo", id: 1, bonus: 1 },
     { price: 120, description: "Uniforme do Brasil", id: 2, bonus: 3 },
     { price: 300, description: "Kit Gay", id: 3, bonus: 1 }
@@ -35,19 +35,19 @@ window.onload = function() {
 
   var setBonus = function() {
     var bonus = 0;
-    for(i = 0; i < player.inventory.length; i++){
-      player.inventory[i] == 1? bonus+= game.items[1].bonus: null 
-      player.inventory[i] == 2? bonus+= game.items[2].bonus: null 
-      player.inventory[i] == 4? bonus+= game.items[3].bonus: null 
+    for (i = 0; i < player.inventory.length; i++) {
+      player.inventory[i] == 1 ? (bonus += game.items[1].bonus) : null;
+      player.inventory[i] == 2 ? (bonus += game.items[2].bonus) : null;
+      player.inventory[i] == 4 ? (bonus += game.items[3].bonus) : null;
     }
-    console.log(bonus)
+    console.log(bonus);
     return bonus;
-  }
+  };
 
   var setStage = function() {
     var stage = new Group();
     stage.addChild(map);
-    stage.addChild(player); 
+    stage.addChild(player);
     stage.addChild(foregroundMap);
     stage.addChild(player.statusLabel);
     game.rootScene.addChild(stage);
@@ -72,17 +72,17 @@ window.onload = function() {
     player.gp = 1000;
     player.levelStats = [
       {},
-      { attack: 4 , maxHp: 30, maxMp: 5, expMax: 10 },
+      { attack: 4, maxHp: 30, maxMp: 5, expMax: 10 },
       { attack: 6, maxHp: 40, maxMp: 5, expMax: 30 },
       { attack: 7, maxHp: 50, maxMp: 6, expMax: 50 }
     ];
     player.attack = function() {
       return player.levelStats[player.level].attack + setBonus();
     };
-    player.magic = function(a){
-      player.inventory 
+    player.magic = function(a) {
+      player.inventory;
       return a.bonus;
-    }
+    };
     player.hp = player.levelStats[player.level].maxHp;
     player.mp = player.levelStats[player.level].maxMp;
 
@@ -373,22 +373,21 @@ window.onload = function() {
         battle.won();
       }
     };
-    battle.playerHeal = function() { 
-         
-        if(player.inventory.includes(0)){
-          player.hp += 10;
-          battle.menu.text = "Você recuperou 10 de vida!";
-          player.inventory.splice(0, 1)
-          return 
-        }else{
-          battle.menu.text = "Você nao possui cocaina";
-          return
-        }
-     
-      
-     
+    battle.playerHeal = function() {
+      if (player.inventory.includes(0)) {
+        player.hp + 10 > player.levelStats[player.level].maxHp
+          ? (player.hp = player.levelStats[player.level].maxHp)
+          : (player.hp += 10);
+
+        battle.menu.text = "Você recuperou 10 de vida!";
+        player.inventory.splice(0, 1);
+        return;
+      } else {
+        battle.menu.text = "Você nao possui cocaina";
+        return;
+      }
     };
-    
+
     battle.enemyAttack = function() {
       var currentEnemy = player.currentEnemy;
       var enemyHit = battle.hitStrength(currentEnemy.attack);
@@ -425,7 +424,7 @@ window.onload = function() {
       {
         name: "Curar",
         action: function() {
-          console.log(player.inventory)
+          console.log(player.inventory);
           battle.wait = true;
           battle.playerHeal();
           setTimeout(function() {
@@ -449,7 +448,6 @@ window.onload = function() {
       {
         name: "Fugir",
         action: function() {
-          
           game.pause();
           player.statusLabel.text = "Você fugiu!";
           player.statusLabel.height = 12;
@@ -541,7 +539,7 @@ window.onload = function() {
       var maneki = new Sprite(game.spriteWidth, game.spriteHeight);
       maneki.image = image;
       image.draw(game.assets["sprites.png"]);
-      maneki.frame = 4 ;
+      maneki.frame = 4;
       maneki.y = 10;
       maneki.x = 10;
       maneki.scaleX = 2;
@@ -602,9 +600,7 @@ window.onload = function() {
     shop.on("enterframe", function() {
       setTimeout(function() {
         if (game.input.a) {
-          
           shop.attemptToBuy();
-        
         } else if (game.input.down) {
           shop.message.text = shop.farewell;
           setTimeout(function() {
@@ -626,7 +622,6 @@ window.onload = function() {
       shoppingFunds.text = shop.shoppingFunds();
     });
     shop.attemptToBuy = function() {
-      
       var itemPrice = game.items[this.itemSelected].price;
       if (player.gp < itemPrice) {
         this.message.text = this.apology;
@@ -684,7 +679,5 @@ window.onload = function() {
     });
   };
 
-
-  
   game.start();
 };
